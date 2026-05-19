@@ -8,7 +8,7 @@ import { promisify } from "node:util";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const PUBLIC_DIR = join(__dirname, "public");
-const DATA_DIR = join(__dirname, "data");
+const DATA_DIR = process.env.VERCEL ? "/tmp/awf-chain-tracker-data" : join(__dirname, "data");
 const CACHE_FILE = join(DATA_DIR, "awf-cache.json");
 
 const PORT = Number(process.env.PORT || 4173);
