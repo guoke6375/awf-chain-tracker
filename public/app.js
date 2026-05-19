@@ -33,12 +33,13 @@ const fmtDate = (isoOrSeconds) => {
 
 function renderRows(transfers) {
   const tbody = $("rows");
-  if (!transfers.length) {
+  const latest = (transfers || []).slice(0, 100);
+  if (!latest.length) {
     tbody.innerHTML = '<tr><td colspan="4" class="empty">No matching transfers found yet.</td></tr>';
     return;
   }
 
-  tbody.innerHTML = transfers.map((tx) => {
+  tbody.innerHTML = latest.map((tx) => {
     const time = tx.timeStamp ? fmtDate(tx.timeStamp) : `Block ${tx.blockNumber}`;
     return `
       <tr>
@@ -57,6 +58,7 @@ function renderDailyChart(transfers) {
 
   for (const tx of transfers || []) {
     if (!tx.timeStamp || !tx.valueEth) continue;
+    if (tx.category !== "awf-direct") continue;
     const day = new Date(tx.timeStamp * 1000).toISOString().slice(5, 10);
     byDay.set(day, (byDay.get(day) || 0) + Number(tx.valueEth));
   }
@@ -103,13 +105,14 @@ async function loadSummary(force = false) {
     $("total-eth").textContent = fmtEth(data.totalEth, 4);
     $("transfer-count").textContent = data.count.toLocaleString();
     $("updated-at").textContent = fmtDate(data.updatedAt);
+    $("latest-inflow-at").textContent = fmtDate(data.transfers?.[0]?.timeStamp);
     $("source").textContent = data.transfers[0]?.source || "chain";
     $("trading-raised").textContent = fmtEth(data.metrics?.tradingRaisedEth, 4);
     $("vitalik-eth").textContent = fmtEth(data.metrics?.vitalikEth, 4);
     $("withdrawn-eth").textContent = fmtEth(data.metrics?.withdrawnEth, 4);
     $("balance-eth").textContent = fmtEth(data.metrics?.balanceEth, 4);
     $("balance-card-eth").textContent = fmtEth(data.metrics?.balanceEth, 4);
-    $("audit-note").textContent = `Counting only successful on-chain ETH transfers. Excluded ${data.metrics?.excludedFailedInflowCount || 0} failed/reverted traces totaling ${fmtEth(data.metrics?.excludedFailedInflowEth, 4)} ETH.`;
+    $("audit-note").textContent = `Counting only ETH that actually reaches the welfare wallet. AWF trades may accrue tax first, then update here when the contract sends ETH to the wallet. Excluded ${data.metrics?.excludedFailedInflowCount || 0} failed/reverted traces totaling ${fmtEth(data.metrics?.excludedFailedInflowEth, 4)} ETH.`;
     $("token-address").textContent = data.token;
     $("wallet-address").textContent = data.donationWallet;
 
@@ -162,3 +165,4 @@ document.querySelectorAll("[data-copy]").forEach((button) => {
 });
 
 loadSummary();
+setInterval(() => loadSummary(), 5 * 60 * 1000);

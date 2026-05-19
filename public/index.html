@@ -20,7 +20,7 @@
         <button type="button" class="nav-action" data-open="token">Token</button>
         <button type="button" class="nav-action nav-action-stacked" data-open="telegram">
           <strong>Telegram</strong>
-          <small>中文CTO社区群</small>
+          <small>&#20013;&#25991;CTO&#31038;&#21306;&#32676;</small>
         </button>
       </nav>
     </header>
@@ -41,8 +41,12 @@
             <strong id="transfer-count">--</strong>
           </div>
           <div>
-            <span>Last Update</span>
+            <span>Last Checked</span>
             <strong id="updated-at">--</strong>
+          </div>
+          <div>
+            <span>Latest Inflow</span>
+            <strong id="latest-inflow-at">--</strong>
           </div>
           <div>
             <span>Source</span>
@@ -92,14 +96,14 @@
       </section>
 
       <p class="audit-note" id="audit-note">
-        Counting only successful on-chain ETH transfers. Failed/reverted traces are excluded.
+        Counting only ETH that actually reaches the welfare wallet. AWF trades can happen before the contract sends ETH to the wallet.
       </p>
 
       <section class="chart-section" aria-labelledby="daily-chart-heading">
         <div class="section-head compact">
           <div>
-            <h2 id="daily-chart-heading">Daily ETH Received</h2>
-            <p>Successful wallet inflows grouped by day.</p>
+            <h2 id="daily-chart-heading">Daily Trading Contributions</h2>
+            <p>Successful contract-to-wallet ETH transfers grouped by day.</p>
           </div>
         </div>
         <div class="chart-wrap">
@@ -111,7 +115,7 @@
         <div class="section-head">
           <div>
             <h2>Recent Transfers</h2>
-            <p>Showing the latest 100 ETH inflows to the welfare wallet.</p>
+            <p>Showing the latest 100 successful ETH inflows to the welfare wallet.</p>
           </div>
           <button id="refresh" type="button">Refresh</button>
         </div>
