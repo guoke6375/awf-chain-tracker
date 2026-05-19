@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: awf-chain-tracker
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_VERSION
+        value: 22.18.0
+      - key: ETHERSCAN_API_KEY
+        sync: false

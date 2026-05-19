@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AWF Donation Tracker</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <span class="mark" aria-hidden="true">AWF</span>
+        <div>
+          <h1>Animal Welfare Fund Tracker</h1>
+          <p>Ethereum on-chain donation monitor</p>
+        </div>
+      </div>
+      <nav>
+        <button type="button" class="nav-action" data-open="wallet">Wallet</button>
+        <button type="button" class="nav-action" data-open="token">Token</button>
+        <button type="button" class="nav-action nav-action-stacked" data-open="telegram">
+          <strong>Telegram</strong>
+          <small>中文CTO社区群</small>
+        </button>
+      </nav>
+    </header>
+
+    <main>
+      <section class="summary">
+        <div class="summary-text">
+          <p class="eyebrow">Total ETH received by welfare wallet</p>
+          <div class="amount">
+            <span id="total-eth">--</span>
+            <small>ETH</small>
+          </div>
+          <p id="status-line" class="status">Loading chain data...</p>
+        </div>
+        <div class="facts" aria-label="Tracker facts">
+          <div>
+            <span>Inflows</span>
+            <strong id="transfer-count">--</strong>
+          </div>
+          <div>
+            <span>Last Update</span>
+            <strong id="updated-at">--</strong>
+          </div>
+          <div>
+            <span>Source</span>
+            <strong id="source">--</strong>
+          </div>
+          <div>
+            <span>Current Balance</span>
+            <strong><b id="balance-eth">--</b> ETH</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="breakdown">
+        <article class="breakdown-card positive">
+          <span>Vitalik Donated</span>
+          <strong><b id="vitalik-eth">--</b> ETH</strong>
+          <a href="https://etherscan.io/tx/0x7ba349c2a0b93977e40ba05cb60798ea18ed218f1022ce121881a371a0393bc3" target="_blank" rel="noreferrer">View tx</a>
+        </article>
+        <article class="breakdown-card positive">
+          <span>On-chain Trading Raised</span>
+          <strong><b id="trading-raised">--</b> ETH</strong>
+          <small>AWF tax transfers plus related wallet inflows</small>
+        </article>
+        <article class="breakdown-card negative">
+          <span>Foundation Withdrawn</span>
+          <strong><b id="withdrawn-eth">--</b> ETH</strong>
+          <small>Sent out from the welfare wallet</small>
+        </article>
+        <article class="breakdown-card balance">
+          <span>Still In Wallet</span>
+          <strong><b id="balance-card-eth">--</b> ETH</strong>
+          <a href="https://etherscan.io/address/0xbAd06a3CA84E4E2b489974d8918B5f7387e6dB8E" target="_blank" rel="noreferrer">View wallet</a>
+        </article>
+      </section>
+
+      <section class="addresses">
+        <div>
+          <span>Token Contract</span>
+          <code id="token-address">--</code>
+          <button type="button" class="copy-btn" data-copy="token">Copy token</button>
+        </div>
+        <div>
+          <span>Donation Wallet</span>
+          <code id="wallet-address">--</code>
+          <button type="button" class="copy-btn" data-copy="wallet">Copy wallet</button>
+        </div>
+      </section>
+
+      <p class="audit-note" id="audit-note">
+        Counting only successful on-chain ETH transfers. Failed/reverted traces are excluded.
+      </p>
+
+      <section class="history">
+        <div class="section-head">
+          <div>
+            <h2>Recent Transfers</h2>
+            <p>Showing the latest 100 ETH inflows to the welfare wallet.</p>
+          </div>
+          <button id="refresh" type="button">Refresh</button>
+        </div>
+        <div class="table-shell">
+          <table>
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Block</th>
+                <th>Amount</th>
+                <th>Tx</th>
+              </tr>
+            </thead>
+            <tbody id="rows">
+              <tr><td colspan="4" class="empty">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>
