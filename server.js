@@ -299,7 +299,7 @@ function summarize(transfers, status = "ok", warning = "") {
       excludedFailedInflowWei: failedInflowsWei,
       excludedFailedInflowEth: weiToEthString(failedInflowsWei)
     },
-    transfers: sorted.slice(0, 100).map((row) => ({
+    transfers: sorted.slice(0, 2500).map((row) => ({
       ...row,
       valueEth: weiToEthString(row.valueWei)
     }))

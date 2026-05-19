@@ -11,10 +11,10 @@ const LINKS = {
   telegram: "https://t.me/AWFzhongwen"
 };
 
-const fmtEth = (value) => {
+const fmtEth = (value, digits = 4) => {
   const n = Number(value);
   if (!Number.isFinite(n)) return value || "0";
-  return n.toLocaleString(undefined, { maximumFractionDigits: 8 });
+  return n.toLocaleString(undefined, { maximumFractionDigits: digits });
 };
 
 const shortHash = (hash) => {
@@ -44,9 +44,38 @@ function renderRows(transfers) {
       <tr>
         <td>${time}</td>
         <td>${tx.blockNumber}</td>
-        <td class="amount-cell">${fmtEth(tx.valueEth)} ETH</td>
+        <td class="amount-cell">${fmtEth(tx.valueEth, 4)} ETH</td>
         <td><a href="https://etherscan.io/tx/${tx.hash}" target="_blank" rel="noreferrer">${shortHash(tx.hash)}</a></td>
       </tr>
+    `;
+  }).join("");
+}
+
+function renderDailyChart(transfers) {
+  const chart = $("daily-chart");
+  const byDay = new Map();
+
+  for (const tx of transfers || []) {
+    if (!tx.timeStamp || !tx.valueEth) continue;
+    const day = new Date(tx.timeStamp * 1000).toISOString().slice(5, 10);
+    byDay.set(day, (byDay.get(day) || 0) + Number(tx.valueEth));
+  }
+
+  const rows = [...byDay.entries()].sort(([a], [b]) => a.localeCompare(b));
+  if (!rows.length) {
+    chart.innerHTML = '<div class="empty">No daily data yet.</div>';
+    return;
+  }
+
+  const max = Math.max(...rows.map(([, value]) => value));
+  chart.innerHTML = rows.map(([day, value]) => {
+    const height = Math.max(6, Math.round((value / max) * 150));
+    return `
+      <div class="bar-item" title="${day}: ${fmtEth(value, 4)} ETH">
+        <div class="bar-value">${fmtEth(value, value >= 1 ? 2 : 3)}</div>
+        <div class="bar" style="height:${height}px"></div>
+        <div class="bar-label">${day}</div>
+      </div>
     `;
   }).join("");
 }
@@ -71,16 +100,16 @@ async function loadSummary(force = false) {
       throw new Error(data.error || "Could not load tracker data");
     }
 
-    $("total-eth").textContent = fmtEth(data.totalEth);
+    $("total-eth").textContent = fmtEth(data.totalEth, 4);
     $("transfer-count").textContent = data.count.toLocaleString();
     $("updated-at").textContent = fmtDate(data.updatedAt);
     $("source").textContent = data.transfers[0]?.source || "chain";
-    $("trading-raised").textContent = fmtEth(data.metrics?.tradingRaisedEth);
-    $("vitalik-eth").textContent = fmtEth(data.metrics?.vitalikEth);
-    $("withdrawn-eth").textContent = fmtEth(data.metrics?.withdrawnEth);
-    $("balance-eth").textContent = fmtEth(data.metrics?.balanceEth);
-    $("balance-card-eth").textContent = fmtEth(data.metrics?.balanceEth);
-    $("audit-note").textContent = `Counting only successful on-chain ETH transfers. Excluded ${data.metrics?.excludedFailedInflowCount || 0} failed/reverted traces totaling ${fmtEth(data.metrics?.excludedFailedInflowEth)} ETH.`;
+    $("trading-raised").textContent = fmtEth(data.metrics?.tradingRaisedEth, 4);
+    $("vitalik-eth").textContent = fmtEth(data.metrics?.vitalikEth, 4);
+    $("withdrawn-eth").textContent = fmtEth(data.metrics?.withdrawnEth, 4);
+    $("balance-eth").textContent = fmtEth(data.metrics?.balanceEth, 4);
+    $("balance-card-eth").textContent = fmtEth(data.metrics?.balanceEth, 4);
+    $("audit-note").textContent = `Counting only successful on-chain ETH transfers. Excluded ${data.metrics?.excludedFailedInflowCount || 0} failed/reverted traces totaling ${fmtEth(data.metrics?.excludedFailedInflowEth, 4)} ETH.`;
     $("token-address").textContent = data.token;
     $("wallet-address").textContent = data.donationWallet;
 
@@ -92,12 +121,14 @@ async function loadSummary(force = false) {
     }
 
     renderRows(data.transfers || []);
+    renderDailyChart(data.transfers || []);
   } catch (error) {
     $("status-line").textContent = error.name === "AbortError"
       ? "Chain data is taking longer than usual. Try Refresh in a moment."
       : error.message;
     $("status-line").classList.add("is-warning");
     $("rows").innerHTML = '<tr><td colspan="4" class="empty">Configure ETHERSCAN_API_KEY or RPC_TRACE_URL on the server to load live data.</td></tr>';
+    $("daily-chart").innerHTML = '<div class="empty">Daily chart unavailable.</div>';
   } finally {
     $("refresh").disabled = false;
   }
